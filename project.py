@@ -84,4 +84,3 @@ def color_dodge(img: Image, x, y, pixel, **kwargs):
 filter(im, screen, color=(120, 0, 60))
 
 im.save("Modified.png")
-#test
