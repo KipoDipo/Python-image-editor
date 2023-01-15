@@ -1,10 +1,7 @@
-"""Some docstring"""
 from PIL import Image
 
-im = Image.open('Image.png')
-
-def filter(img : Image, apply_filter, **kwargs):
-    """Edits an image with a given function"""
+def apply(img : Image, apply_filter, **kwargs):
+    """Applies a filter on a given image"""
     for x in range(img.size[0]):
         for y in range(img.size[1]):
             pixel = img.getpixel((x, y))
@@ -69,18 +66,11 @@ def color_dodge(img: Image, x, y, pixel, **kwargs):
     if 'color' in kwargs:
         color = kwargs['color']
         change = [
-            pixel[0] * (255 if color[0] == 255 else 255/(255 - color[0])), 
-            pixel[1] * (255 if color[1] == 255 else 255/(255 - color[1])), 
+            pixel[0] * (255 if color[0] == 255 else 255/(255 - color[0])),
+            pixel[1] * (255 if color[1] == 255 else 255/(255 - color[1])),
             pixel[2] * (255 if color[2] == 255 else 255/(255 - color[2]))]
         img.putpixel((x,y), (
             int(change[0]), 
             int(change[1]), 
             int(change[2]), 
             pixel[3]))
-
-#filter(im, mono, threshold=50)
-#filter(im, inverse)
-#filter(im, grayscale)
-filter(im, screen, color=(120, 0, 60))
-
-im.save("Modified.png")
