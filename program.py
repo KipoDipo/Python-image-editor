@@ -9,30 +9,30 @@ sg.theme('Dark Grey 13')
 original = Image.open('Image.png')
 image = Image.open('Image.png')
 
-first_col = [
+filters = [
     [sg.Text('Filters:')],
-    [sg.Button('Inverse'), sg.Button('Grayscale'), sg.Button('Monochrome')],
-    [sg.Button('Screen'), sg.Button('Multiply'), sg.Button('Color Dodge')],
+    [sg.Button('Inverse'), sg.Button('Grayscale'), sg.Button('Monochrome'), sg.Button('Screen'), sg.Button('Multiply'), sg.Button('Color Dodge')],
 ]
 
-second_col = [
-    [sg.Text('Actions:')],
-    [sg.Button('Rotate')],
-    [sg.Button('Flip')],
+adjustments = [
+    [sg.Text('Adjustments:')],
+    [sg.Button('Brightness'), sg.Button('Contrast')],
 ]
 
 layout = [
     [sg.Button('Save'), sg.Button('Reset')],
-    [sg.Column(first_col), sg.VerticalSeparator(), sg.Column(second_col)],
+    [sg.HorizontalSeparator()],
+    [sg.Column(adjustments)],
+    [sg.Column(filters)],
     [sg.Image(size=image.size, key='image')],
 ]
 
 window = sg.Window('Python Image Editor', layout, finalize=True)
 
-def update_image(window, image):
+def update_image(window, image, key='image'):
     data = io.BytesIO()
     image.save(data, format='PNG')
-    window['image'].update(data=data.getvalue())
+    window[key].update(data=data.getvalue())
 
 def replace(target : Image, source : Image):
     target.resize(source.size)
@@ -54,16 +54,33 @@ while True:
         apply(image, inverse)
         update_image(window, image)
 
-    if event == 'Monochrome':
+    if event == 'Grayscale':
+        apply(image, grayscale)
+        update_image(window, image)
+
+    if event in ['Monochrome', 'Contrast', 'Brightness']:
         copy = Image.new(image.mode, image.size)
         copy.paste(image)
         
-        apply(copy, mono, threshold = 255 - 127),
+        if event == 'Monochrome':
+            sl_range = (0, 255)
+            sl_def = 255/2
+            toApply = mono
+            apply(copy, toApply, sl_def)
+        elif event == 'Contrast':
+            sl_range = (0, 1000)
+            sl_def = 100
+            toApply = contrast
+        else:
+            sl_range = (-255, 255)
+            sl_def = 0
+            toApply = brightness
         
+
         layoutPopup = [
             [sg.Image(size=copy.size, key='image')],
-            [sg.Text('Threshold:')],
-            [sg.Slider(range=(0,255), enable_events=True, size=(copy.size[0]/9,20), default_value=127, key='slider', orientation='h')],
+            [sg.Text('Amount:')],
+            [sg.Slider(range=sl_range, enable_events=True, size=(copy.size[0]/9,20), default_value=sl_def, key='slider', orientation='h')],
             [sg.Button('OK'), sg.Button('Preview'), sg.Checkbox('Live Preview (laggy)', key='live_preview')]
         ]
         popup = sg.Window(event, layoutPopup, finalize=True)
@@ -76,13 +93,13 @@ while True:
             nest_event, nest_values = popup.read()
 
             if (nest_event == 'Preview' or nest_event == 'slider' and nest_values['live_preview'] == True):
-                apply(copy, mono, threshold = 255 - int(nest_values['slider'])),
+                apply(copy, toApply, int(nest_values['slider'])),
                 update_image(popup, copy)
                 replace(copy, image)
                 
 
             if (nest_event == 'OK'):
-                apply(image, mono, threshold = 255 - int(nest_values['slider']))
+                apply(image, toApply, int(nest_values['slider']))
                 update_image(window, image)
                 break
             if (nest_event == sg.WINDOW_CLOSED):
@@ -120,22 +137,18 @@ while True:
             if (nest_event == 'Preview' or nest_event in ['R', 'G', 'B'] and nest_values['live_preview'] == True):
                 replace(copy, image)
                 tempVals = [nest_values['R'], nest_values['G'], nest_values['B'], 255] 
-                apply(copy, toApply, color=tempVals),
+                apply(copy, toApply, tempVals)
                 update_image(popup, copy)
 
             if (nest_event == 'OK'):
                 tempVals = [nest_values['R'], nest_values['G'], nest_values['B'], 255] 
-                apply(image, toApply, color=tempVals)
+                apply(image, toApply, tempVals)
                 update_image(window, image)
                 break
             if (nest_event == sg.WINDOW_CLOSED):
                 break
 
         popup.close()
-
-    if event == 'Grayscale':
-        apply(image, grayscale)
-        update_image(window, image)
 
     if event == sg.WINDOW_CLOSED:
         break
