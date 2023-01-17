@@ -1,3 +1,4 @@
+"""Image processor"""
 from PIL import Image
 
 def apply(img : Image, apply_filter, *args):
@@ -24,23 +25,23 @@ def mono(img : Image, x, y, pixel, *args):
     if len(args) > 0:
         threshold = 255 - args[0]
 
-    val = 0 if gray < threshold else 255 
+    val = 0 if gray < threshold else 255
     img.putpixel((x, y), (val, val, val))
 
 def multiply(img: Image, x, y, pixel, *args):
     """Multiplies a pixel by a given color (r, g, b)"""
     if len(args) > 0:
         color = args[0]
-        
+
         a = [pixel[0]/255, pixel[1]/255, pixel[2]/255]
         b = [color[0]/255, color[1]/255, color[2]/255]
         change = [
-            255 * a[0] * b[0], 
+            255 * a[0] * b[0],
             255 * a[1] * b[1],
             255 * a[2] * b[2]]
         img.putpixel((x,y), (
-            int(change[0]), 
-            int(change[1]), 
+            int(change[0]),
+            int(change[1]),
             int(change[2])
             ))
 
@@ -57,8 +58,8 @@ def screen(img: Image, x, y, pixel, *args):
             255 * (1 - (1 - a[2]) * (1 - b[2]))]
 
         img.putpixel((x,y), (
-            int(change[0]), 
-            int(change[1]), 
+            int(change[0]),
+            int(change[1]),
             int(change[2])
             ))
 
@@ -74,9 +75,9 @@ def color_dodge(img: Image, x, y, pixel, *args):
             pixel[2] * (255 if color[2] == 255 else 255/(255 - color[2]))
         ]
         img.putpixel((x,y), (
-            int(change[0]), 
-            int(change[1]), 
-            int(change[2]) 
+            int(change[0]),
+            int(change[1]),
+            int(change[2])
             ))
 
 def contrast(img: Image, x, y, pixel, *args):
