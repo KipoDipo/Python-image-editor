@@ -1,24 +1,14 @@
 import io
 import PySimpleGUI as sg
-from PIL import Image
 import ImageProcessor as ip
-import numpy as np
-
-def update_image(window : sg.Window, pixels : np.ndarray, key='image'):
-    image = Image.fromarray(pixels.astype(np.uint8)).convert('RGB')
-    data = io.BytesIO()
-    image.save(data, format='PNG')
-    window[key].update(data=data.getvalue())
-    del image
+from ImageEditor import ImageEditor
 
 def main():
     """Main method"""
     sg.theme('Dark Grey 8')
 
-    original = Image.open('Image.png')
-    orig_pixels = np.array(original)
-    img_pixels = np.copy(orig_pixels)
-
+    img = ImageEditor(image_path='Image.png')
+    
     filters = [
         [sg.Text('Filters:')],
         [sg.Button('Inverse'), sg.Button('Grayscale'), sg.Button('Monochrome'), sg.Button('Screen'), sg.Button('Multiply'), sg.Button('Color Dodge')],
@@ -30,38 +20,40 @@ def main():
     ]
 
     layout = [
-        [sg.Button('Save'), sg.Button('Reset')],
+        [sg.Button('Save'), sg.Button('Reset'), sg.Button('Undo')],
         [sg.HorizontalSeparator()],
         [sg.Column(adjustments)],
         [sg.Column(filters)],
-        [sg.Image(size=original.size, key='image')],
+        [sg.Image(size=img.size(), key='image')],
     ]
 
     window = sg.Window('Python Image Editor', layout, finalize=True)
-    update_image(window, img_pixels)
+    img.update_window(window)
+    
     while True:
         event, values = window.read()
 
         if event == 'Save':
-            image = Image.fromarray(img_pixels.astype(np.uint8)).convert('RGB')
-            image.save('Modified.png')
+            img.save()
 
         if event == 'Reset':
-            img_pixels = orig_pixels
-            update_image(window, img_pixels)
+            img.reset()
+            img.update_window(window)
+
+        if event == 'Undo':
+            img.undo()
+            img.update_window(window)
 
         if event == 'Inverse':
-            img_pixels = ip.apply_fast(img_pixels, ip.inverse_fast)
-            update_image(window, img_pixels)
+            img.edit(ip.inverse_fast)
+            img.update_window(window)
 
         if event == 'Grayscale':
-            img_pixels = ip.apply_fast(img_pixels, ip.grayscale_fast)
-            update_image(window, img_pixels)
+            img.edit(ip.grayscale_fast)
+            img.update_window(window)
 
         if event in ['Monochrome', 'Contrast', 'Brightness']:
-            copy_pixels = img_pixels.copy()
-            width = copy_pixels.shape[0]
-            height = copy_pixels.shape[0]
+            copy_img = ImageEditor(image_editor_copy=img)
 
             sl_text = 'Amount:'
 
@@ -70,7 +62,7 @@ def main():
                 sl_def = 255 / 2
                 sl_text = 'Threshold:'
                 to_apply = ip.mono_fast
-                copy_pixels = ip.apply_fast(copy_pixels, to_apply, sl_def)
+                copy_img.edit(to_apply, sl_def)
 
             elif event == 'Contrast':
                 sl_range = (0, 1000)
@@ -83,26 +75,26 @@ def main():
                 to_apply = ip.brightness_fast
 
             layout_popup = [
-                [sg.Image(size=(width, height), key='image')],
+                [sg.Image(size=copy_img.size(), key='image')],
                 [sg.Text(sl_text)],
-                [sg.Slider(range=sl_range, enable_events=True, size=(width/9,20), default_value=sl_def, key='slider', orientation='h')],
+                [sg.Slider(range=sl_range, enable_events=True, size=(copy_img.size()[0]/9,20), default_value=sl_def, key='slider', orientation='h')],
                 [sg.Button('OK'), sg.Button('Cancel'), sg.Button('Preview'), sg.Checkbox('Live Preview', key='live_preview', default=True)]
             ]
             popup = sg.Window(event, layout_popup, finalize=True)
 
-            update_image(popup, copy_pixels)
+            copy_img.update_window(popup)
 
             while True:
                 nest_event, nest_values = popup.read()
 
                 if nest_event == 'Preview' or nest_event == 'slider' and bool(nest_values['live_preview']):
-                    copy_pixels = ip.apply_fast(copy_pixels, to_apply, int(nest_values['slider']))
-                    update_image(popup, copy_pixels)
-                    copy_pixels = img_pixels.copy()
+                    copy_img.edit(to_apply, int(nest_values['slider']))
+                    copy_img.update_window(popup)
+                    copy_img.reset()
 
                 if nest_event == 'OK':
-                    img_pixels = ip.apply_fast(img_pixels, to_apply, int(nest_values['slider']))
-                    update_image(window, img_pixels)
+                    img.edit(to_apply, int(nest_values['slider']))
+                    img.update_window(window)
                     break
 
                 if nest_event == 'Cancel' or nest_event == sg.WINDOW_CLOSED:
@@ -111,20 +103,19 @@ def main():
             popup.close()
 
         if event in ['Screen', 'Multiply', 'Color Dodge']:
-            copy_pixels = img_pixels.copy()
-            width = copy_pixels.shape[0]
-            height = copy_pixels.shape[0]
+            copy_img = ImageEditor(image_editor_copy=img)
             
             layout_popup = [
-                [sg.Image(size=(width, height), key='image')],
-                [sg.Text('R:'), sg.Slider(range=(0,255), size=(width/9 - 3,20), key='R', enable_events = True, orientation='h')],
-                [sg.Text('G:'), sg.Slider(range=(0,255), size=(width/9 - 3,20), key='G', enable_events = True, orientation='h')],
-                [sg.Text('B:'), sg.Slider(range=(0,255), size=(width/9 - 3,20), key='B', enable_events = True, orientation='h')],
+                [sg.Image(size=copy_img.size(), key='image')],
+                [sg.Text('R:'), sg.Slider(range=(0,255), size=(copy_img.size()[0]/9 - 3,20), key='R', enable_events = True, orientation='h')],
+                [sg.Text('G:'), sg.Slider(range=(0,255), size=(copy_img.size()[0]/9 - 3,20), key='G', enable_events = True, orientation='h')],
+                [sg.Text('B:'), sg.Slider(range=(0,255), size=(copy_img.size()[0]/9 - 3,20), key='B', enable_events = True, orientation='h')],
                 [sg.Button('OK'), sg.Button('Cancel'), sg.Button('Preview'), sg.Checkbox('Live preview', key='live_preview', default=True)]
             ]
 
             popup = sg.Window(event, layout_popup, finalize=True)
-            update_image(popup, copy_pixels)
+
+            copy_img.update_window(popup)
 
             if event == 'Screen':
                 to_apply = ip.screen_fast
@@ -138,14 +129,14 @@ def main():
 
                 if nest_event == 'Preview' or nest_event in ['R', 'G', 'B'] and bool(nest_values['live_preview']):
                     temp_vals = [nest_values['R'], nest_values['G'], nest_values['B'], 255]
-                    copy_pixels = ip.apply_fast(copy_pixels, to_apply, temp_vals)
-                    update_image(popup, copy_pixels)
-                    copy_pixels = img_pixels.copy()
+                    copy_img.edit(to_apply, temp_vals)
+                    copy_img.update_window(popup)
+                    copy_img.reset()
 
                 if nest_event == 'OK':
                     temp_vals = [nest_values['R'], nest_values['G'], nest_values['B'], 255]
-                    img_pixels = ip.apply_fast(img_pixels, to_apply, temp_vals)
-                    update_image(window, img_pixels)
+                    img.edit(to_apply, temp_vals)
+                    img.update_window(window)
                     break
                 if nest_event == 'Cancel' or nest_event == sg.WINDOW_CLOSED:
                     break
