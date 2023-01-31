@@ -10,7 +10,7 @@ def main():
     img = ImageEditor(image_path='Image.png')
     
     macro_src = ['macro_off.png', 'macro_on.png']
-    macro_button = ['Record Macro', 'Stop Macro']
+    macro_button = ['Record Macro', 'Save Macro']
     macro_functions = []
     macro_is_recording = False
 
@@ -41,6 +41,8 @@ def main():
 
         if event == 'MacroButton':
             macro_is_recording = not macro_is_recording
+            if (macro_is_recording):
+                macro_functions.clear()
             window['macro'].update(source=macro_src[int(macro_is_recording)])
             window['MacroButton'].update(text=macro_button[int(macro_is_recording)])
         
@@ -58,6 +60,9 @@ def main():
 
         if event == 'Undo':
             img.undo()
+            if macro_is_recording:
+                if len(macro_functions) > 0:
+                    macro_functions.pop()
             img.update_window(window)
 
         if event == 'Inverse':
