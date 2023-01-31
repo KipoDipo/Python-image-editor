@@ -9,6 +9,10 @@ def main():
 
     img = ImageEditor(image_path='Image.png')
     
+    macro_src = ['macro_off.png', 'macro_on.png']
+    macro_button = ['Record Macro', 'Stop Macro']
+    is_recording = False
+
     filters = [
         [sg.Text('Filters:')],
         [sg.Button('Inverse'), sg.Button('Grayscale'), sg.Button('Monochrome'), sg.Button('Screen'), sg.Button('Multiply'), sg.Button('Color Dodge')],
@@ -20,7 +24,7 @@ def main():
     ]
 
     layout = [
-        [sg.Button('Save'), sg.Button('Reset'), sg.Button('Undo')],
+        [sg.Button('Save'), sg.Button('Reset'), sg.Button('Undo'), sg.Button(macro_button[0], key='MacroButton', size=(11, 1)), sg.Image(macro_src[0], key='macro')],
         [sg.HorizontalSeparator()],
         [sg.Column(adjustments)],
         [sg.Column(filters)],
@@ -32,6 +36,11 @@ def main():
     
     while True:
         event, values = window.read()
+
+        if event == 'MacroButton':
+            is_recording = not is_recording
+            window['macro'].update(source=macro_src[int(is_recording)])
+            window['MacroButton'].update(text=macro_button[int(is_recording)])
 
         if event == 'Save':
             img.save()

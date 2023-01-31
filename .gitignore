@@ -2,3 +2,5 @@
 /__pycache__
 *.pyc
 *.png
+!macro_off.png
+!macro_on.png
