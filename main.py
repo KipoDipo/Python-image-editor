@@ -11,7 +11,9 @@ def main():
     
     macro_src = ['macro_off.png', 'macro_on.png']
     macro_button = ['Record Macro', 'Stop Macro']
-    is_recording = False
+    macro_functions = []
+    macro_is_recording = False
+
 
     filters = [
         [sg.Text('Filters:')],
@@ -24,7 +26,7 @@ def main():
     ]
 
     layout = [
-        [sg.Button('Save'), sg.Button('Reset'), sg.Button('Undo'), sg.Button(macro_button[0], key='MacroButton', size=(11, 1)), sg.Image(macro_src[0], key='macro')],
+        [sg.Button('Save'), sg.Button('Reset'), sg.Button('Undo'), sg.Button(macro_button[0], key='MacroButton', size=(11, 1)), sg.Image(macro_src[0], key='macro'), sg.Button('Apply')],
         [sg.HorizontalSeparator()],
         [sg.Column(adjustments)],
         [sg.Column(filters)],
@@ -38,9 +40,14 @@ def main():
         event, values = window.read()
 
         if event == 'MacroButton':
-            is_recording = not is_recording
-            window['macro'].update(source=macro_src[int(is_recording)])
-            window['MacroButton'].update(text=macro_button[int(is_recording)])
+            macro_is_recording = not macro_is_recording
+            window['macro'].update(source=macro_src[int(macro_is_recording)])
+            window['MacroButton'].update(text=macro_button[int(macro_is_recording)])
+        
+        if (event == 'Apply'):
+            for x in macro_functions:
+                img.edit(*x)
+            img.update_window(window)
 
         if event == 'Save':
             img.save()
@@ -55,10 +62,16 @@ def main():
 
         if event == 'Inverse':
             img.edit(ip.inverse_fast)
+            if macro_is_recording:
+                macro_functions.append([ip.inverse_fast])
+
             img.update_window(window)
 
         if event == 'Grayscale':
             img.edit(ip.grayscale_fast)
+            if macro_is_recording:
+                macro_functions.append([ip.grayscale_fast])
+
             img.update_window(window)
 
         if event in ['Monochrome', 'Contrast', 'Brightness']:
@@ -103,6 +116,8 @@ def main():
 
                 if nest_event == 'OK':
                     img.edit(to_apply, int(nest_values['slider']))
+                    if macro_is_recording:
+                        macro_functions.append([to_apply, int(nest_values['slider'])])
                     img.update_window(window)
                     break
 
@@ -145,6 +160,9 @@ def main():
                 if nest_event == 'OK':
                     temp_vals = [nest_values['R'], nest_values['G'], nest_values['B'], 255]
                     img.edit(to_apply, temp_vals)
+                    if macro_is_recording:
+                        macro_functions.append([to_apply, temp_vals])
+
                     img.update_window(window)
                     break
                 if nest_event == 'Cancel' or nest_event == sg.WINDOW_CLOSED:
