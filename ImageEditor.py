@@ -6,7 +6,7 @@ import PySimpleGUI as sg
 
 class ImageEditor:
 
-    def __init__(self, image_path : str = None, image_editor_copy = None):
+    def __init__(self, image_path : str = None, image_editor_copy : 'ImageEditor' = None):
         
         if image_path is not None:
             image = Image.open(image_path)
