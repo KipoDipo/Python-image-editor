@@ -26,7 +26,7 @@ class ImageEditor:
         return (self.__current_pixels.shape[0], self.__current_pixels.shape[1])
 
     def edit(self, filter, *args):
-        self.__current_pixels = ip.apply_fast(self.__current_pixels, filter, *args)
+        self.__current_pixels = ip.apply(self.__current_pixels, filter, *args)
         self.__history.append(self.__current_pixels.copy())
 
     def reset(self):
@@ -40,6 +40,7 @@ class ImageEditor:
     
     def update_window(self, window : sg.Window, key='image'):
         image = Image.fromarray(self.__current_pixels.astype(np.uint8)).convert('RGB')
+        image.thumbnail((400,400))
         data = io.BytesIO()
         image.save(data, format='PNG')
         window[key].update(data=data.getvalue())

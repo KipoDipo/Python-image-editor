@@ -14,28 +14,42 @@ def main():
     macro_functions = []
     macro_is_recording = False
 
+    simple_actions = {
+        'Inverse' : [ip.inverse],
+        'Grayscale' : [ip.grayscale],
+        'Rotate Left' : [ip.rotate, 1],
+        'Rotate Right' : [ip.rotate, -1],
+        'Flip Vertical' : [ip.flipud],
+        'Flip Horizontal' : [ip.fliplr],
+    }
 
-    filters = [
+    filters_col = [
         [sg.Text('Filters:')],
         [sg.Button('Inverse'), sg.Button('Grayscale'), sg.Button('Monochrome'), sg.Button('Screen'), sg.Button('Multiply'), sg.Button('Color Dodge')],
     ]
 
-    adjustments = [
+    adjustments_col = [
         [sg.Text('Adjustments:')],
         [sg.Button('Brightness'), sg.Button('Contrast')],
     ]
 
-    layout = [
-        [sg.Button('Save'), sg.Button('Reset'), sg.Button('Undo'), sg.Button(macro_button[0], key='MacroButton', size=(11, 1)), sg.Image(macro_src[0], key='macro'), sg.Button('Apply')],
-        [sg.HorizontalSeparator()],
-        [sg.Column(adjustments)],
-        [sg.Column(filters)],
-        [sg.Image(size=img.size(), key='image')],
+    image_col = [
+        [sg.Text('Image')],
+        [sg.Button('Rotate Left'), sg.Button('Rotate Right'), sg.Button('Flip Vertical'), sg.Button('Flip Horizontal')]
     ]
 
-    window = sg.Window('Python Image Editor', layout, finalize=True)
+    layout_col = [
+        [sg.Button('Save'), sg.Button('Reset'), sg.Button('Undo'), sg.Button(macro_button[0], key='MacroButton', size=(11, 1)), sg.Image(macro_src[0], key='macro'), sg.Button('Apply')],
+        [sg.HorizontalSeparator()],
+        [sg.Column(image_col)],
+        [sg.Column(adjustments_col)],
+        [sg.Column(filters_col)],
+        [sg.Column([[sg.Image(size=(400, 400), key='image')]], justification='c')],
+    ]
+
+    window = sg.Window('Python Image Editor', layout_col, finalize=True)
     img.update_window(window)
-    
+
     while True:
         event, values = window.read()
 
@@ -46,7 +60,7 @@ def main():
             window['macro'].update(source=macro_src[int(macro_is_recording)])
             window['MacroButton'].update(text=macro_button[int(macro_is_recording)])
         
-        if (event == 'Apply'):
+        if event == 'Apply':
             for x in macro_functions:
                 img.edit(*x)
             img.update_window(window)
@@ -65,18 +79,10 @@ def main():
                     macro_functions.pop()
             img.update_window(window)
 
-        if event == 'Inverse':
-            img.edit(ip.inverse_fast)
+        if event in simple_actions:
+            img.edit(*simple_actions[event])
             if macro_is_recording:
-                macro_functions.append([ip.inverse_fast])
-
-            img.update_window(window)
-
-        if event == 'Grayscale':
-            img.edit(ip.grayscale_fast)
-            if macro_is_recording:
-                macro_functions.append([ip.grayscale_fast])
-
+                macro_functions.append(simple_actions[event])
             img.update_window(window)
 
         if event in ['Monochrome', 'Contrast', 'Brightness']:
@@ -88,23 +94,23 @@ def main():
                 sl_range = (0, 255)
                 sl_def = 255 / 2
                 sl_text = 'Threshold:'
-                to_apply = ip.mono_fast
+                to_apply = ip.monochrome
                 copy_img.edit(to_apply, sl_def)
 
             elif event == 'Contrast':
                 sl_range = (0, 1000)
                 sl_def = 100
-                to_apply = ip.contrast_fast
+                to_apply = ip.contrast
 
             elif event == 'Brightness':
                 sl_range = (-255, 255)
                 sl_def = 0
-                to_apply = ip.brightness_fast
+                to_apply = ip.brightness
 
             layout_popup = [
-                [sg.Image(size=copy_img.size(), key='image')],
+                [sg.Column([[sg.Image(size=(450,450), key='image')]], justification='c')],
                 [sg.Text(sl_text)],
-                [sg.Slider(range=sl_range, enable_events=True, size=(copy_img.size()[0]/9,20), default_value=sl_def, key='slider', orientation='h')],
+                [sg.Slider(range=sl_range, enable_events=True, size=(450/9,20), default_value=sl_def, key='slider', orientation='h')],
                 [sg.Button('OK'), sg.Button('Cancel'), sg.Button('Preview'), sg.Checkbox('Live Preview', key='live_preview', default=True)]
             ]
             popup = sg.Window(event, layout_popup, finalize=True)
@@ -135,10 +141,10 @@ def main():
             copy_img = ImageEditor(image_editor_copy=img)
             
             layout_popup = [
-                [sg.Image(size=copy_img.size(), key='image')],
-                [sg.Text('R:'), sg.Slider(range=(0,255), size=(copy_img.size()[0]/9 - 3,20), key='R', enable_events = True, orientation='h')],
-                [sg.Text('G:'), sg.Slider(range=(0,255), size=(copy_img.size()[0]/9 - 3,20), key='G', enable_events = True, orientation='h')],
-                [sg.Text('B:'), sg.Slider(range=(0,255), size=(copy_img.size()[0]/9 - 3,20), key='B', enable_events = True, orientation='h')],
+                [sg.Column([[sg.Image(size=(450,450), key='image')]], justification='c')],
+                [sg.Text('R:'), sg.Slider(range=(0,255), size=(450/9 - 3,20), key='R', enable_events = True, orientation='h')],
+                [sg.Text('G:'), sg.Slider(range=(0,255), size=(450/9 - 3,20), key='G', enable_events = True, orientation='h')],
+                [sg.Text('B:'), sg.Slider(range=(0,255), size=(450/9 - 3,20), key='B', enable_events = True, orientation='h')],
                 [sg.Button('OK'), sg.Button('Cancel'), sg.Button('Preview'), sg.Checkbox('Live preview', key='live_preview', default=True)]
             ]
 
@@ -147,11 +153,11 @@ def main():
             copy_img.update_window(popup)
 
             if event == 'Screen':
-                to_apply = ip.screen_fast
+                to_apply = ip.screen
             elif event == 'Multiply':
-                to_apply = ip.multiply_fast
+                to_apply = ip.multiply
             else:
-                to_apply = ip.color_dodge_fast
+                to_apply = ip.color_dodge
 
             while True:
                 nest_event, nest_values = popup.read()

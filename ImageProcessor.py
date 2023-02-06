@@ -7,21 +7,14 @@ def replace(target : Image, source : Image):
     target.resize(source.size)
     target.paste(source)
 
-def apply_fast(pixels, apply_filter, *args):
+def apply(pixels : np.ndarray, apply_filter, *args):
     """Faster implementation"""
     return apply_filter(pixels, *args)
 
-def apply(img : Image, apply_filter, *args):
-    """Applies a filter on a given image"""
-    for x in range(img.size[0]):
-        for y in range(img.size[1]):
-            pixel = img.getpixel((x, y))
-            apply_filter(img, x, y, pixel, *args)
-
-def inverse_fast(pixels):
+def inverse(pixels : np.ndarray):
     return 255 - pixels
 
-def grayscale_fast(pixels):
+def grayscale(pixels : np.ndarray):
     grayVec = [0.299, 0.578, 0.114] # gray vec formula
     gray = np.dot(pixels[..., :3], grayVec) # 2D gray matrix
     pixels[..., 0] = gray
@@ -29,7 +22,7 @@ def grayscale_fast(pixels):
     pixels[..., 2] = gray
     return pixels
 
-def mono_fast(pixels, *args):
+def monochrome(pixels : np.ndarray, *args):
     grayVec = [0.299, 0.578, 0.114] # gray vec formula
     gray = np.dot(pixels[..., :3], grayVec) # 2D gray matrix
     
@@ -43,7 +36,7 @@ def mono_fast(pixels, *args):
     pixels[..., 2] = gray
     return pixels
 
-def multiply_fast(pixels, *color):
+def multiply(pixels : np.ndarray, *color):
     if (len(color) == 0):
         return pixels
 
@@ -55,7 +48,7 @@ def multiply_fast(pixels, *color):
 
     return pixels
 
-def screen_fast(pixels, *color):
+def screen(pixels : np.ndarray, *color):
     if (len(color) == 0):
         return pixels
 
@@ -68,7 +61,7 @@ def screen_fast(pixels, *color):
     return pixels
 
 #I actually discovered this by accident while trying to figure out how to do 'screen', turns out this is exactly how 'color dodge' works
-def color_dodge_fast(pixels, *color):
+def color_dodge(pixels : np.ndarray, *color):
     if (len(color) == 0):
         return pixels
     color = color[0]
@@ -81,13 +74,25 @@ def color_dodge_fast(pixels, *color):
     pixels[pixels > 255] = 255
     return pixels
 
-def contrast_fast(pixels, *args):
+def contrast(pixels : np.ndarray, *args):
     m = pixels * (args[0] / 100.0)
     m[m > 255] = 255
     return m
 
-def brightness_fast(pixels, *args):
+def brightness(pixels : np.ndarray, *args):
     m = pixels.astype(np.uint16) + args[0]
     m[m < 0] = 0
     m[m >= 255] = 255
     return m
+
+def rotate(pixels : np.ndarray, *args):
+    pixels = np.rot90(pixels, k = args[0])
+    return pixels
+
+def flipud(pixels : np.ndarray):
+    pixels = np.flipud(pixels)
+    return pixels
+
+def fliplr(pixels : np.ndarray):
+    pixels = np.fliplr(pixels)
+    return pixels
