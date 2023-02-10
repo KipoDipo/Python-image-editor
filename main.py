@@ -1,4 +1,5 @@
 import io
+import os
 import PySimpleGUI as sg
 import ImageProcessor as ip
 from ImageEditor import ImageEditor
@@ -7,7 +8,40 @@ def main():
     """Main method"""
     sg.theme('Dark Grey 8')
 
-    img = ImageEditor(image_path='Image.png')
+    working_directory = os.getcwd()
+    working_image = ''
+
+    file_browse_layout = [
+        [sg.Text('Select an image: ')],
+        [sg.InputText(key='file_path'), sg.FileBrowse(
+            initial_folder=working_directory,
+            file_types=[
+                ('Image file', '*.png;*.jpeg;*.jpg;*.bmp;*.ppm;*.gif;*.tiff'),
+            ])],
+        [sg.Button('Open')]
+    ]
+    file_browse_window = sg.Window('File Browser', file_browse_layout)
+
+    while True:
+        event, values = file_browse_window.Read()
+
+        if event == 'Open':
+            try:
+                file_path = values['file_path']
+
+                working_image = os.path.splitext(os.path.basename(file_path))[0]
+                img = ImageEditor(image_path=file_path)
+
+                file_browse_window.close()
+                break
+            except FileNotFoundError:
+                sg.Popup('File not found')
+            except Exception:
+                sg.Popup('No file path was given')
+
+        if event == sg.WINDOW_CLOSED:
+            return
+
     
     macro_src = ['macro_off.png', 'macro_on.png']
     macro_button = ['Record Macro', 'Save Macro']
@@ -39,7 +73,7 @@ def main():
     ]
 
     layout_col = [
-        [sg.Button('Save'), sg.Button('Reset'), sg.Button('Undo'), sg.Button(macro_button[0], key='MacroButton', size=(11, 1)), sg.Image(macro_src[0], key='macro'), sg.Button('Apply')],
+        [sg.Button('Save'), sg.Button('Reset'), sg.Button('Undo'), sg.Button(macro_button[0], key='MacroButton', size=(11, 1)), sg.Image(macro_src[0], key='macro'), sg.Button('Apply'), sg.Button('Apply To...')],
         [sg.HorizontalSeparator()],
         [sg.Column(image_col)],
         [sg.Column(adjustments_col)],
@@ -47,7 +81,7 @@ def main():
         [sg.Column([[sg.Image(size=(400, 400), key='image')]], justification='c')],
     ]
 
-    window = sg.Window('Python Image Editor', layout_col, finalize=True)
+    window = sg.Window('Python Image Editor', layout_col, size=(500, 650), finalize=True)
     img.update_window(window)
 
     while True:
@@ -65,8 +99,28 @@ def main():
                 img.edit(*x)
             img.update_window(window)
 
+        #TODO
+        if event == 'Apply To...':
+            pass
+
         if event == 'Save':
-            img.save()
+            folder_browse_layout = [
+                [sg.Text('Save location:')],
+                [sg.InputText(key='file_path', default_text=working_directory), sg.FolderBrowse(initial_folder=working_directory)],
+                [sg.Text('File name:')],
+                [sg.InputText(key='file_name', default_text=f'{working_image}_modified')],
+                [sg.Button('Save')]
+            ]
+            folder_browse_window = sg.Window('Save Image', folder_browse_layout)
+
+            fbw_event, fbw_values = folder_browse_window.Read()
+
+            if fbw_event == 'Save':
+                img.save(f"{fbw_values['file_path']}\\{fbw_values['file_name']}.png")
+                folder_browse_window.close()
+                
+            if fbw_event == sg.WINDOW_CLOSED:
+                folder_browse_window.close()
 
         if event == 'Reset':
             img.reset()
@@ -140,11 +194,15 @@ def main():
         if event in ['Screen', 'Multiply', 'Color Dodge']:
             copy_img = ImageEditor(image_editor_copy=img)
             
+            sl_def = 0
+            if event == 'Multiply':
+                sl_def = 255
+
             layout_popup = [
                 [sg.Column([[sg.Image(size=(450,450), key='image')]], justification='c')],
-                [sg.Text('R:'), sg.Slider(range=(0,255), size=(450/9 - 3,20), key='R', enable_events = True, orientation='h')],
-                [sg.Text('G:'), sg.Slider(range=(0,255), size=(450/9 - 3,20), key='G', enable_events = True, orientation='h')],
-                [sg.Text('B:'), sg.Slider(range=(0,255), size=(450/9 - 3,20), key='B', enable_events = True, orientation='h')],
+                [sg.Text('R:'), sg.Slider(range=(0,255), default_value=sl_def, size=(450/9 - 3,20), key='R', enable_events = True, orientation='h')],
+                [sg.Text('G:'), sg.Slider(range=(0,255), default_value=sl_def, size=(450/9 - 3,20), key='G', enable_events = True, orientation='h')],
+                [sg.Text('B:'), sg.Slider(range=(0,255), default_value=sl_def, size=(450/9 - 3,20), key='B', enable_events = True, orientation='h')],
                 [sg.Button('OK'), sg.Button('Cancel'), sg.Button('Preview'), sg.Checkbox('Live preview', key='live_preview', default=True)]
             ]
 
