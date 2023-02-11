@@ -115,7 +115,7 @@ def main():
                 [sg.Button('Apply'), sg.Button('Cancel')]
             ]
 
-            files_browse_window = sg.Window('Mass macro apply', files_browse_layout)
+            files_browse_window = sg.Window('Macro apply to...', files_browse_layout)
 
             while True:
                 fbw_event, fbw_values = files_browse_window.Read()
