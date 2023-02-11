@@ -142,10 +142,10 @@ def main():
                         files_browse_window.close()
                         sg.Popup("The macro has been applied!")
                         break
-                    #except FileNotFoundError:
-                    #   sg.Popup('Files not found')
-                    #except Exception as e:
-                    #   sg.Popup(f'No file path was given\n{e}')
+                    except FileNotFoundError:
+                      sg.Popup('Files not found')
+                    except Exception as e:
+                       sg.Popup(f'No file path was given\n{e}')
 
                 if fbw_event == sg.WINDOW_CLOSED or fbw_event == 'Cancel':
                     files_browse_window.close()
