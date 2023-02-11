@@ -99,7 +99,6 @@ def main():
                 img.edit(*x)
             img.update_window(window)
 
-        #TODO
         if event == 'Apply To...':
             files_browse_layout = [
                 [sg.Text('Select images: ')],
