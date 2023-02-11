@@ -121,7 +121,7 @@ def main():
                 fbw_event, fbw_values = files_browse_window.Read()
 
                 if fbw_event == 'Apply':
-                    #try:
+                    try:
                         files_path = fbw_values['file_path']
                         save_to = f"{os.path.dirname(files_path.split(';')[0])}"
 
