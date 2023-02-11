@@ -148,7 +148,7 @@ def main():
 
                 if fbw_event == sg.WINDOW_CLOSED or fbw_event == 'Cancel':
                     files_browse_window.close()
-                    return
+                    break
 
 
         if event == 'Save':
