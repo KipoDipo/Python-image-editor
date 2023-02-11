@@ -128,6 +128,7 @@ def main():
                             save_to += f"/{fbw_values['folder']}"
 
                             if not os.path.exists(save_to):
+                                print(f"Creating folder {save_to}")
                                 os.mkdir(save_to)
 
                         for file_path in files_path.split(';'):
@@ -137,6 +138,7 @@ def main():
                             for x in macro_functions:
                                 temp_img.edit(*x)
                             temp_img.save(f"{save_to}/{working_image}{fbw_values['extention']}.png")
+                            print(f"Image saved at {save_to}/{working_image}{fbw_values['extention']}.png")
 
                         files_browse_window.close()
                         sg.Popup("The macro has been applied!")
@@ -165,6 +167,7 @@ def main():
 
             if fbw_event == 'Save':
                 img.save(f"{fbw_values['file_path']}\\{fbw_values['file_name']}.png")
+                print(f"Image saved at {fbw_values['file_path']}\\{fbw_values['file_name']}.png")
                 folder_browse_window.close()
                 
             if fbw_event == sg.WINDOW_CLOSED:
