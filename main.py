@@ -101,7 +101,56 @@ def main():
 
         #TODO
         if event == 'Apply To...':
-            pass
+            files_browse_layout = [
+                [sg.Text('Select images: ')],
+                [sg.InputText(key='file_path'), sg.FilesBrowse(
+                    initial_folder=working_directory,
+                    file_types=[
+                        ('Image files', '*.png;*.jpeg;*.jpg;*.bmp;*.ppm;*.gif;*.tiff'),
+                    ])],
+                [sg.Text('Extension:')],
+                [sg.InputText(default_text='_modified', key='extention')],
+                [sg.Text('Folder Name:')],
+                [sg.InputText(default_text='Modified', key='folder')],
+                [sg.Button('Apply'), sg.Button('Cancel')]
+            ]
+
+            files_browse_window = sg.Window('Mass macro apply', files_browse_layout)
+
+            while True:
+                fbw_event, fbw_values = files_browse_window.Read()
+
+                if fbw_event == 'Apply':
+                    #try:
+                        files_path = fbw_values['file_path']
+                        save_to = f"{os.path.dirname(files_path.split(';')[0])}"
+
+                        if fbw_values['folder'] != '':
+                            save_to += f"/{fbw_values['folder']}"
+
+                            if not os.path.exists(save_to):
+                                os.mkdir(save_to)
+
+                        for file_path in files_path.split(';'):
+                            working_image = os.path.splitext(os.path.basename(file_path))[0]
+
+                            temp_img = ImageEditor(image_path=file_path)
+                            for x in macro_functions:
+                                temp_img.edit(*x)
+                            temp_img.save(f"{save_to}/{working_image}{fbw_values['extention']}.png")
+
+                        files_browse_window.close()
+                        sg.Popup("The macro has been applied!")
+                        break
+                    #except FileNotFoundError:
+                    #   sg.Popup('Files not found')
+                    #except Exception as e:
+                    #   sg.Popup(f'No file path was given\n{e}')
+
+                if fbw_event == sg.WINDOW_CLOSED or fbw_event == 'Cancel':
+                    files_browse_window.close()
+                    return
+
 
         if event == 'Save':
             folder_browse_layout = [
