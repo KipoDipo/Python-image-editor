@@ -108,7 +108,7 @@ def main():
                         ('Image files', '*.png;*.jpeg;*.jpg;*.bmp;*.ppm;*.gif;*.tiff'),
                     ])],
                 [sg.Text('Extension:')],
-                [sg.InputText(default_text='_modified', key='extention')],
+                [sg.InputText(default_text='_modified', key='extension')],
                 [sg.Text('Folder Name:')],
                 [sg.InputText(default_text='Modified', key='folder')],
                 [sg.Button('Apply'), sg.Button('Cancel')]
@@ -137,8 +137,8 @@ def main():
                             temp_img = ImageEditor(image_path=file_path)
                             for x in macro_functions:
                                 temp_img.edit(*x)
-                            temp_img.save(f"{save_to}/{working_image}{fbw_values['extention']}.png")
-                            print(f"Image saved at {save_to}/{working_image}{fbw_values['extention']}.png")
+                            temp_img.save(f"{save_to}/{working_image}{fbw_values['extension']}.png")
+                            print(f"Image saved at {save_to}/{working_image}{fbw_values['extension']}.png")
 
                         files_browse_window.close()
                         sg.Popup("The macro has been applied!")

@@ -4,3 +4,8 @@
 !macro_off.png
 !macro_on.png
 !/.git
+!/utils/
+!/utils/Demo1
+!/utils/Demo1/*.png
+!/utils/Demo2
+!/utils/Demo2/*.png
