@@ -35,7 +35,7 @@ Python image editor is a simple tool, that can be used for simple image editing 
 4. ``pip install -r requirements.txt``
 5. ``py main.py``
 
-## Short demo of basic manipulation:
+## Short demo of a basic manipulation:
 If everything went OK, this is what we should be getting:
 
 ![Open](utils/Demo1/Open.png)
@@ -56,9 +56,9 @@ Let's apply the ``Inverse`` filter.
 
 After that we can save the image, via the ``Save`` button.
 
-A popup will appear, and clicking ``Save`` once again will save the image on the given path with the given name.
+A popup will appear, and clicking ``Save`` once again will save the image at the given path with the given name.
 
-*Note: The path and file name are set automatically, but they can be changed.*
+*Note: The path and file name are set automatically, but they can be changed. The best way to change the path is by pressing ``Browse``*
 
 *Note: All images are saved as .png, hence why you shouldn't add any extension to the file name.  
 The file extension cannot be changed as of yet.*
@@ -75,7 +75,7 @@ You'll know that you are currently recording a macro because the indicator will 
 
 ![RecordingMacro](utils/Demo2/RecordingMacro.png)
 
-After applying some changes, save the steps since pressing ``Record Macro`` by pressing ``Save Macro``.
+After making some changes, save the recorded steps by pressing ``Save Macro``.
 
 ![MadeChanges](utils/Demo2/AppliedSomeChanges.png)
 
@@ -93,7 +93,7 @@ When the ``Apply To...`` button is pressed, a popup will appear.
 ![ApplyTo](utils/Demo2/ApplyToPopup.png)
 
 Again, using ``Browse`` you can navigate to a path and choose multiple images to apply the macro at once.  
-In this case, the modified images will be saved in a new folder ``/Modified`` with the extension ``_modified`` after their original name.
+*Note: In this case, the modified images will be saved in a new folder ``/Modified`` with the extension ``_modified`` after their original name. Those names are there by default.*
 
 ## Current limitations:
 ### Easy to fix:
