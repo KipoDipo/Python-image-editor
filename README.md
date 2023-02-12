@@ -30,9 +30,9 @@ Python image editor is a simple tool, that can be used for simple image editing 
 
 ### For any other OS, it's the standard procedure:
 1. open the terminal and locate the directory of the project
-2. ``py -m venv venv``
+2. ``py -m venv venv`` **(only the first time)**
 3. ``venv\Scripts\activate``
-4. ``pip install -r requirements.txt``
+4. ``pip install -r requirements.txt`` **(only the first time)**
 5. ``py main.py``
 
 ## Short demo of a basic manipulation:
