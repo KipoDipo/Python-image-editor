@@ -25,7 +25,7 @@ Python image editor is a simple tool, that can be used for simple image editing 
 
 ## Installing and running:
 ### For ``Windows OS`` the installation is very simple:
-1. run ``install_requirements.bat``**(only the first time)**
+1. run ``install_requirements.bat`` **(only the first time)**
 2. run ``run.bat``
 
 ### For any other OS, it's the standard procedure:
