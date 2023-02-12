@@ -24,16 +24,18 @@ Python image editor is a simple tool, that can be used for simple image editing 
 - Apply Macro to multiple images at once
 
 ## Installing and running:
+1. Clone or Download the repo
+2. Navigate to the directory of the project
 ### For ``Windows OS`` the installation is very simple:
-1. run ``install_requirements.bat`` **(only the first time)**
-2. run ``run.bat``
+3. run ``install_requirements.bat`` **(only the first time)**
+4. run ``run.bat``
 
 ### For any other OS, it's the standard procedure:
-1. open the terminal and locate the directory of the project
-2. ``py -m venv venv`` **(only the first time)**
-3. ``venv\Scripts\activate``
-4. ``pip install -r requirements.txt`` **(only the first time)**
-5. ``py main.py``
+3. open the terminal in the directory of the project
+4. ``py -m venv venv`` **(only the first time)**
+5. ``venv\Scripts\activate``
+6. ``pip install -r requirements.txt`` **(only the first time)**
+7. ``py main.py``
 
 ## Short demo of a basic manipulation:
 If everything went OK, this is what we should be getting:
