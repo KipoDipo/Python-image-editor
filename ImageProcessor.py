@@ -62,7 +62,7 @@ def screen(pixels : np.ndarray, *color):
 
 #I actually discovered this by accident while trying to figure out how to do 'screen', turns out this is exactly how 'color dodge' works
 def color_dodge(pixels : np.ndarray, *color):
-    if (len(color) == 0):
+    if len(color) == 0:
         return pixels
     color = color[0]
 

@@ -152,7 +152,6 @@ def main():
                     files_browse_window.close()
                     break
 
-
         if event == 'Save':
             folder_browse_layout = [
                 [sg.Text('Save location:')],
