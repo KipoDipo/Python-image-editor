@@ -31,7 +31,6 @@ class ImageEditor:
 
     def reset(self):
         self.__current_pixels = self.__original_pixels.copy()
-        self.__history.clear()
         self.__history = [self.__current_pixels.copy()]
 
     def undo(self):
